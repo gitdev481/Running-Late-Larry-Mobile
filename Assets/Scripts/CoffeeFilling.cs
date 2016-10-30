@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -72,41 +72,36 @@ public class CoffeeFilling : MonoBehaviour {
 		CoffeePour.fillAmount -= Mathf.Lerp (0.0f, 0.54f, t * Time.deltaTime *1.4f );
 			//pourTheCoffee = false;
         }
-
-        if (Input.GetKey(KeyCode.Space) && tElapsed >= 2.5f && tElapsed <= 3.5f && !notEnoughCoffee)
+        for (int i = 0; i < Input.touchCount; i++)
         {
-          
-            // if(tElapsed >= 2.5f && tElapsed <= 3.5f )
+            if (Input.GetKey(KeyCode.Space) || (Input.GetTouch(i).phase == TouchPhase.Began) && tElapsed >= 2.5f && tElapsed <= 3.5f && !notEnoughCoffee)
             {
-                if (levelComplete == false)
                 {
-                    // Debug.Log ("Right timing");
-                    CoffeeFull.fillAmount = 1.0f;
-                    winSound.Play();
-                    winningText.SetActive(true);
-                    levelComplete = true;
-
-                    timercoffee.GameWin = true;
-
+                    if (levelComplete == false)
+                    {
+                        // Debug.Log ("Right timing");
+                        CoffeeFull.fillAmount = 1.0f;
+                        winSound.Play();
+                        winningText.SetActive(true);
+                        levelComplete = true;
+                        timercoffee.GameWin = true;
+                    }
                 }
+            }
+            if (Input.GetKey(KeyCode.Space) || (Input.GetTouch(i).phase == TouchPhase.Began) && tElapsed < 2.5f)
+            {
+                pourTheCoffee = false;
+                notEnoughCoffee = true;
+                notEnoughCoffeePanel.SetActive(true);
+                coffeePourSound.Stop();
+                //CoffeeFull.fillAmount -= Mathf.Lerp (1.0f, 0.0f, t * Time.deltaTime );
+                //CoffeeFull.fillAmount = 0.2f ;
 
+                theCoffeePour.SetActive(false);
+                //Application.LoadLevel("GameOverScene");
             }
         }
-          if(Input.GetKey(KeyCode.Space) && tElapsed < 2.5f) 
-          {
-            pourTheCoffee = false;
-            notEnoughCoffee = true;
-				notEnoughCoffeePanel.SetActive(true);
-				coffeePourSound.Stop ();
-				//CoffeeFull.fillAmount -= Mathf.Lerp (1.0f, 0.0f, t * Time.deltaTime );
-				//CoffeeFull.fillAmount = 0.2f ;
 
-				theCoffeePour.SetActive(false);
-            //Application.LoadLevel("GameOverScene");
-          }
-        
-        
-        
         if(levelComplete == true)
         {
           if(tElapsed >= 4.5f)
