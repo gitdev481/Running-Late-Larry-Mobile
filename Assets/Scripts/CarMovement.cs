@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class CarMovement : MonoBehaviour {
 
-	float xspeep = 0f;
+	float xspeed = 0f;
 	public float power = 0.005f;
 	float friction = 0.95f;
 	float steering = 2.0f;
@@ -19,11 +19,11 @@ public class CarMovement : MonoBehaviour {
 		
 		
 		if(forward){
-			xspeep += power;
+			xspeed += power;
 			fuel -= power;
 		}
 		if(backward){
-			xspeep -= power;
+			xspeed -= power;
 			fuel -= power;
 		}
 		
@@ -32,40 +32,55 @@ public class CarMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	    
-	    if (GetComponent<TimerCoffee>().GameWin == false)
+
+        if(Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
+            {
+                // If the finger is on the screen, move the object smoothly to the touch position
+                Vector3 touchPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 10));
+                transform.position = Vector3.Lerp(transform.position, touchPosition, Time.deltaTime * 2);
+               GetComponent<Rigidbody2D>().transform.eulerAngles = new Vector3(0, 0, Mathf.Atan2((touchPosition.y - transform.position.y), (touchPosition.x - transform.position.x)) * Mathf.Rad2Deg - 180);
+            }
+        }
+
+       
+
+        if (GetComponent<TimerCoffee>().GameWin == false)
 	    {
 	
-	    float turn = Input.GetAxis("Horizontal")*steering;
+	        float turn = Input.GetAxis("Horizontal")*steering;
 		
-		if(Input.GetKeyDown(KeyCode.UpArrow)){
-			forward = true;
-		}
-		if(Input.GetKeyUp(KeyCode.UpArrow)){
-			forward = false;
-		}
-		if(Input.GetKeyDown(KeyCode.DownArrow)){
-			backward = true;
-		}
-		if(Input.GetKeyUp(KeyCode.DownArrow)){
-			backward = false;
-		}
-		if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
-		{
+		    if(Input.GetKeyDown(KeyCode.UpArrow)){
+			    forward = true;
+		    }
+		    if(Input.GetKeyUp(KeyCode.UpArrow)){
+			    forward = false;
+		    }
+		    if(Input.GetKeyDown(KeyCode.DownArrow)){
+			    backward = true;
+		    }
+		    if(Input.GetKeyUp(KeyCode.DownArrow)){
+			    backward = false;
+		    }
+		    if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+		    {
 		
-			transform.Rotate(0,0,turn);
-		}
+			    transform.Rotate(0,0,turn);
+		    }
 		
 		}
 		
 		if(fuel < 0){
 			
-			xspeep = 0;
+			xspeed = 0;
 			
 		}
 		
-		xspeep *= friction;
-		transform.Translate(Vector2.right * -xspeep);
+		xspeed *= friction;
+		transform.Translate(Vector2.right * -xspeed);
 		
 	}
 }
