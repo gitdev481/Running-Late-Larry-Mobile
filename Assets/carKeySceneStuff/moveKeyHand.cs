@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class moveKeyHand : MonoBehaviour {
 
 	public float speed =10f;
+    public float mobileSpeed = 10f;
 	public Animator handAnimator;
 
 
@@ -21,7 +23,8 @@ public class moveKeyHand : MonoBehaviour {
 
     public bool keyTurned = false;
 
-
+    float xForce = 0f;
+    float yForce = 0f;
 	void Start(){
 	//	Vector3 randomDirection = new Vector3 (Random.value, Random.value, 0);
 		
@@ -31,25 +34,25 @@ public class moveKeyHand : MonoBehaviour {
 
 	}
 
-	void Update ()
-	{ 
-		if ( carKeyTimer.GameWin == true)
-		{
-			
-			//GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
-			GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-			handAnimator.SetBool ("turnKey", true);
-			//GetComponent<Rigidbody2D>().angularVelocity = Vector3.zero; 
-		}
-        if(keyTurned && carKeyTimer.GameWin == false)
+    void Update()
+    {
+        if (carKeyTimer.GameWin == true)
+        {
+
+            //GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
+            GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+            handAnimator.SetBool("turnKey", true);
+            //GetComponent<Rigidbody2D>().angularVelocity = Vector3.zero; 
+        }
+        if (keyTurned && carKeyTimer.GameWin == false)
         {
             stopmovement = true;
             MissClick.SetActive(true);
             GetComponent<Rigidbody2D>().velocity = Vector3.zero;
         }
-		
-	if(carKeyTimer.GameWin == false)
-	 {
+
+        if (carKeyTimer.GameWin == false)
+        {
 
             //if (attempt == 0)
             //{
@@ -60,47 +63,61 @@ public class moveKeyHand : MonoBehaviour {
             //    MissClick.SetActive(true);
             //}
             if (stopmovement == false)
-	           {
-		        MoveRandomDirection ();
-		
-		
+            {
+                MoveRandomDirection();
 
-			        //changes the hand sprite/animation
-			        if (Input.GetKeyDown (KeyCode.Space)/* && attempt > 0*/) {
-			
-			    
-				        handAnimator.SetBool ("turnKey", true);
+
+
+                //changes the hand sprite/animation
+                if (Input.GetKeyDown(KeyCode.Space)/* && attempt > 0*/)
+                {
+
+
+                    handAnimator.SetBool("turnKey", true);
                     // attempt -= 1;
-                    keyTurned = true;  
+                    keyTurned = true;
                     //Debug.Log("spacebar test");
-			        } else {
-				        handAnimator.SetBool ("turnKey", false);
-			        }
-	
-			        //for moving hand up, down, left and right.
-			        if (Input.GetKey(KeyCode.LeftArrow))
-			        {
-				        GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
-			        }
-			        if (Input.GetKey(KeyCode.RightArrow))
-			        {
-				        GetComponent<Rigidbody2D>().AddForce(Vector2.right * speed);
-			        }
-			        if (Input.GetKey(KeyCode.UpArrow))
-			        {
-				        GetComponent<Rigidbody2D>().AddForce(Vector2.up * speed);
-			        }
-			        if (Input.GetKey(KeyCode.DownArrow))
-			        {
-				        GetComponent<Rigidbody2D>().AddForce(-Vector2.up * speed);
-			        }
-		        }
-		
-		
-		}
-		
-		
-	}
+                }
+                else
+                {
+                    handAnimator.SetBool("turnKey", false);
+                }
+
+                //for moving hand up, down, left and right.
+                if (Input.GetKey(KeyCode.LeftArrow))
+                {
+                    GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
+                }
+                if (Input.GetKey(KeyCode.RightArrow))
+                {
+                    GetComponent<Rigidbody2D>().AddForce(Vector2.right * speed);
+                }
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
+                    GetComponent<Rigidbody2D>().AddForce(Vector2.up * speed);
+                }
+                if (Input.GetKey(KeyCode.DownArrow))
+                {
+                    GetComponent<Rigidbody2D>().AddForce(-Vector2.up * speed);
+                }
+                xForce = Input.GetAxis("Horizontal");
+                yForce = Input.GetAxis("Vertical");
+                Debug.Log("XFORCE: " + xForce);
+                Debug.Log("YFORCE: " + yForce);
+
+            }
+
+
+        }
+
+
+    }
+
+    void FixedUpdate()
+    {
+        Vector2 moveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"),CrossPlatformInputManager.GetAxis("Vertical") ) * mobileSpeed;
+        GetComponent<Rigidbody2D>().AddForce(moveVec);
+    }
 
 	void MoveRandomDirection(){
 		state = Random.Range (1, 4);
