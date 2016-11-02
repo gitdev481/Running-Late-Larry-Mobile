@@ -4,16 +4,17 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class moveKeyHand : MonoBehaviour {
 
-	public float speed =10f;
-    public float mobileSpeed = 10f;
+	private float speed =2.5f;
+    private float mobileSpeed = 2.5f;
 	public Animator handAnimator;
 
-
+    public ignitionButton ignitionScript;
 	public float vibrateSpeed = 1f;
 	public int state = 0;
 	public float vibrateAmount = 30;
 	public float moveAmount = 0.001f;
 	public static int attempt = 1;
+    public bool powerButtonPressed = false;
 	
 	public carKeyTimerScript carKeyTimer;
 	
@@ -23,16 +24,21 @@ public class moveKeyHand : MonoBehaviour {
 
     public bool keyTurned = false;
 
-    float xForce = 0f;
-    float yForce = 0f;
+ 
 	void Start(){
-	//	Vector3 randomDirection = new Vector3 (Random.value, Random.value, 0);
-		
 		attempt = 1;
 		
 		carKeyTimer.GameWin = false;
+       
+    }
 
-	}
+    public void TurnKey()
+    {
+        handAnimator.SetBool("turnKey", true);
+        powerButtonPressed = true;
+        keyTurned = true;
+       
+    }
 
     void Update()
     {
@@ -44,12 +50,7 @@ public class moveKeyHand : MonoBehaviour {
             handAnimator.SetBool("turnKey", true);
             //GetComponent<Rigidbody2D>().angularVelocity = Vector3.zero; 
         }
-        if (keyTurned && carKeyTimer.GameWin == false)
-        {
-            stopmovement = true;
-            MissClick.SetActive(true);
-            GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-        }
+    
 
         if (carKeyTimer.GameWin == false)
         {
@@ -69,13 +70,9 @@ public class moveKeyHand : MonoBehaviour {
 
 
                 //changes the hand sprite/animation
-                if (Input.GetKeyDown(KeyCode.Space)/* && attempt > 0*/)
+                if (Input.GetKeyDown(KeyCode.Space) || powerButtonPressed)
                 {
-
-
-                    handAnimator.SetBool("turnKey", true);
-                    // attempt -= 1;
-                    keyTurned = true;
+                    TurnKey();
                     //Debug.Log("spacebar test");
                 }
                 else
@@ -100,23 +97,26 @@ public class moveKeyHand : MonoBehaviour {
                 {
                     GetComponent<Rigidbody2D>().AddForce(-Vector2.up * speed);
                 }
-                xForce = Input.GetAxis("Horizontal");
-                yForce = Input.GetAxis("Vertical");
-                Debug.Log("XFORCE: " + xForce);
-                Debug.Log("YFORCE: " + yForce);
-
+           
             }
-
-
         }
-
-
+       
     }
 
+    void LateUpdate()
+    {
+        //if (keyTurned && carKeyTimer.GameWin == false)
+        //{
+        //    stopmovement = true;
+        //    MissClick.SetActive(true);
+        //    GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+        //}
+    }
     void FixedUpdate()
     {
-        Vector2 moveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"),CrossPlatformInputManager.GetAxis("Vertical") ) * mobileSpeed;
-        GetComponent<Rigidbody2D>().AddForce(moveVec);
+        Vector2 moveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical")) * mobileSpeed;
+        GetComponent<Rigidbody2D>().AddForce(moveVec) ;
+        Debug.Log(moveVec);
     }
 
 	void MoveRandomDirection(){
