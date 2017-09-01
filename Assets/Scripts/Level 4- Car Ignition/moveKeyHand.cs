@@ -4,83 +4,68 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class moveKeyHand : MonoBehaviour {
 
+	public int state = 0;
+	public int attempt;
+
 	private float speed =2.5f;
     private float mobileSpeed = 2.5f;
-	public Animator handAnimator;
-
-    public ignitionButton ignitionScript;
-	public float vibrateSpeed = 1f;
-	public int state = 0;
-	public float vibrateAmount = 30;
-	public float moveAmount = 0.001f;
-	public static int attempt = 1;
-    public bool powerButtonPressed = false;
+    public  float vibrateSpeed = 1f;
+	public  float vibrateAmount = 30;
+	public  float moveAmount = 0.001f;
 	
 	public carKeyTimerScript carKeyTimer;
-	
 	public GameObject MissClick;
-	
-	public bool stopmovement = false;
+    public Animator handAnimator;
+    public ignitionButton ignitionScript;
 
+    public bool powerButtonPressed = false;
+	public bool stopmovement = false;
     public bool keyTurned = false;
 
- 
-	void Start(){
-		attempt = 1;
-		
-		carKeyTimer.GameWin = false;
-       
-    }
-
-    public void TurnKey()
+	void Start()
     {
-        handAnimator.SetBool("turnKey", true);
-        powerButtonPressed = true;
-        keyTurned = true;
-       
+		attempt = 1;
+		carKeyTimer.GameWin = false;
     }
 
     void Update()
     {
+        ManageGameWin();
+        ManageHandMovement();
+    }
+
+    void FixedUpdate()
+    {
+        Vector2 moveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical")) * mobileSpeed;
+        GetComponent<Rigidbody2D>().AddForce(moveVec);
+    }
+
+    void ManageGameWin()
+    {
         if (carKeyTimer.GameWin == true)
         {
-
-            //GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
             GetComponent<Rigidbody2D>().velocity = Vector3.zero;
             handAnimator.SetBool("turnKey", true);
-            //GetComponent<Rigidbody2D>().angularVelocity = Vector3.zero; 
         }
-    
+    }
 
+    void ManageHandMovement()
+    {
         if (carKeyTimer.GameWin == false)
         {
-
-            //if (attempt == 0)
-            //{
-            //    Debug.Log("LOSE");
-            //    stopmovement = true;
-            //    GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-            //    //  Debug.Log (" madonna");
-            //    MissClick.SetActive(true);
-            //}
             if (stopmovement == false)
             {
                 MoveRandomDirection();
 
-
-
-                //changes the hand sprite/animation
                 if (Input.GetKeyDown(KeyCode.Space) || powerButtonPressed)
                 {
                     TurnKey();
-                    //Debug.Log("spacebar test");
                 }
                 else
                 {
                     handAnimator.SetBool("turnKey", false);
                 }
 
-                //for moving hand up, down, left and right.
                 if (Input.GetKey(KeyCode.LeftArrow))
                 {
                     GetComponent<Rigidbody2D>().AddForce(-Vector2.right * speed);
@@ -97,29 +82,19 @@ public class moveKeyHand : MonoBehaviour {
                 {
                     GetComponent<Rigidbody2D>().AddForce(-Vector2.up * speed);
                 }
-           
             }
         }
-       
     }
 
-    void LateUpdate()
+    public void TurnKey()
     {
-        //if (keyTurned && carKeyTimer.GameWin == false)
-        //{
-        //    stopmovement = true;
-        //    MissClick.SetActive(true);
-        //    GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-        //}
-    }
-    void FixedUpdate()
-    {
-        Vector2 moveVec = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical")) * mobileSpeed;
-        GetComponent<Rigidbody2D>().AddForce(moveVec) ;
-        Debug.Log(moveVec);
+        handAnimator.SetBool("turnKey", true);
+        powerButtonPressed = true;
+        keyTurned = true;
     }
 
-	void MoveRandomDirection(){
+	void MoveRandomDirection()
+    {
 		state = Random.Range (1, 4);
 
 		if (state == 1) {
@@ -131,7 +106,5 @@ public class moveKeyHand : MonoBehaviour {
 		} else {
 			transform.position += new Vector3(vibrateAmount,0,0) * vibrateSpeed * Time.deltaTime;
 		}
-
-	
 	}
 }

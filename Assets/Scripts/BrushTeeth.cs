@@ -13,10 +13,9 @@ public class BrushTeeth : MonoBehaviour {
 	public GameObject fired;
 
 	public GameObject fail;
-	public GameObject la, ra; //Left Arrow, Right arrow
-	public GameObject laf, raf; //Left Arrow, Right arrow
-	public GameObject tb; //Toothbrush
-	public GameObject ct; //Cleen teeth
+	public GameObject leftArrowFilled, rightArrowFilled; 
+	public GameObject toothBrush; //Toothbrush
+	public GameObject cleanTeeth; //Cleen teeth
 	Vector3 ty, tx, cy; //The amount to move the toothbrush by each key stroke
 	public GameObject winPanel;
 	public TimerTeeth timerTeeth;
@@ -35,96 +34,65 @@ public class BrushTeeth : MonoBehaviour {
 
     private bool leftButtonClicked = false;
     private bool rightButtonClicked = false;
+
 	void Start()
 	{
 		failed = false;
         teethTimer = this.GetComponent<TimerTeeth>();
 	}
 
-    // Update is called once per frame
-
-    public void LeftButtonClicked() {
-        Debug.Log("left button clicked");
-        leftButtonClicked = true;
-    }
-    public void RightButtonClicked()
+	void Update ()
     {
-        Debug.Log("right button clicked");
-        rightButtonClicked = true;
-    }
-
-	void Update () {
-     
-        //Debug.Log(overBrushTimer);
-		//la.GetComponent<Renderer>().material.color = Color.white;
-		if (cCount >= 0.05f) {
-			la.SetActive (true);
-			laf.SetActive (false);
-			ra.SetActive (true);
-			raf.SetActive (false);
-		}
-		//ra.GetComponent<Renderer>().material.color = Color.white;
-		if (what) {
+		if (what)
+        {
 			what = false;
 			text.SetActive(false);
-		}if (timerTeeth.GameWin == false )
+		}
+        if (timerTeeth.GameWin == false )
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow) || leftButtonClicked && prevKeyboardSetting != "Left")
+            if ((Input.GetKeyDown(KeyCode.LeftArrow) || leftButtonClicked) && prevKeyboardSetting != "Left")
             {
-                //Move square down
                 leftButtonClicked = false;
                 ty = new Vector3(0, -4, 0);
-                tb.GetComponentInParent<Transform>().position += ty;
-                cy = tb.GetComponentInParent<Transform>().position;
+                toothBrush.GetComponentInParent<Transform>().position += ty;
+                cy = toothBrush.GetComponentInParent<Transform>().position;
                 cy += new Vector3(2.7f, 4.75f, 3.5f);
-                Instantiate(ct, cy, Quaternion.identity);
+                Instantiate(cleanTeeth, cy, Quaternion.identity);
                 prevKeyboardSetting = "Left";
-                la.SetActive(false);
-                laf.SetActive(true);
+                leftArrowFilled.SetActive(false);
+                rightArrowFilled.SetActive(true);
                 cCount = 0.0f;
                 vibrate.Play();
-                //la.GetComponent<Renderer>().material.color = Color.red;
                 count++;
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow) || rightButtonClicked && prevKeyboardSetting != "Right")
+            else if ((Input.GetKeyDown(KeyCode.RightArrow) || rightButtonClicked) && prevKeyboardSetting != "Right")
             {
-                //Move square up and right 
                 rightButtonClicked = false;
                 ty = new Vector3(0, 4, 0);
-                tb.GetComponentInParent<Transform>().position += ty;
+                toothBrush.GetComponentInParent<Transform>().position += ty;
                 tx = new Vector3(2, 0, 0);
-                tb.GetComponentInParent<Transform>().position += tx;
+                toothBrush.GetComponentInParent<Transform>().position += tx;
                 prevKeyboardSetting = "Right";
-                ra.SetActive(false);
-                raf.SetActive(true);
+                leftArrowFilled.SetActive(false);
+                rightArrowFilled.SetActive(true);
                 cCount = 0.0f;
                 vibrate.Play();
-                //ra.GetComponent<Renderer>().material.color = Color.red;
                 count++;
-                
             }
         }
 		if (count == 17) {
-			//text.SetActive (true);
 			what = true;
             timerActive = false;
-            overBrushTimer += Time.deltaTime;
-            Debug.Log("called");
-            //teethTimer.startTimer = false;
+            overBrushTimer += Time.deltaTime;  
             gameWon = true;
-           
         }
-		if (count >= 18 && !gameWon /*&& tCount >= 3.9f*/) {
+		if (count >= 18 && !gameWon) {
 			failed = true;
-            timerActive = false;
-            
+            timerActive = false;  
 		}
-		if (/*tCount >= 4.0f*/ overBrushTimer >= overBrushTimerThreshold && !failed && gameWon) {
+		if (overBrushTimer >= overBrushTimerThreshold && !failed && gameWon) {
             Debug.Log("Teeth clean");
-            //play win sound
             winSound.SetActive (true);
-           // gameWinSound.enabled = true;
-			
 			tCount = 0.0f;
 			winPanel.SetActive(true);
 			text.SetActive(false);
@@ -132,10 +100,8 @@ public class BrushTeeth : MonoBehaviour {
             gameWon = false;
             gameReallyWon = true;
 
-			//Application.LoadLevel(3);
-			//Go to next minigame and splash screen
 		} else if (count >= 18) {
-			//Debug.Log ("Your teeth are too clean. You got fired for being late.");
+		
 			tCount = 0.0f;
 			fired.SetActive(true);
 			text.SetActive(false);
@@ -150,7 +116,14 @@ public class BrushTeeth : MonoBehaviour {
             cCount += Time.deltaTime;
             tCount += Time.deltaTime;
         }
-		//When it gets to int then end the scene
-
 	}
+
+    public void LeftButtonClicked()
+    {
+        leftButtonClicked = true;
+    }
+    public void RightButtonClicked()
+    {
+        rightButtonClicked = true;
+    }
 }

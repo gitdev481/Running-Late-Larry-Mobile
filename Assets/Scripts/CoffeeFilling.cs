@@ -4,134 +4,112 @@ using UnityEngine.UI;
 
 public class CoffeeFilling : MonoBehaviour {
 
-
 	public SpriteRenderer CoffeeEmpty;
 
 	public Image CoffeeFull;
-
 	public Image CoffeePour;
 
 	float timeToFill = 4.0f;
+	float currentFillTime = 0.0f;
+	float timeElapsed;
 
-	float t = 0.0f;
-	
-	float tElapsed;
-	
-	bool levelComplete = false;
-	
 	public GameObject winningText;
-	
 	public GameObject losingText;
-	
-	public GameObject Poop;
-
-	public AudioSource winSound;
-
-	public AudioSource fartSound;
-
-	public bool terribleCoffee = false;
-
+	public GameObject poop;
 	public GameObject fartGameObject;
-
 	public GameObject notEnoughCoffeePanel;
+    public GameObject theCoffeePour;
 
-	public AudioSource coffeePourSound;
+    public AudioSource winSound;
+    public AudioSource fartSound;
+    public AudioSource coffeePourSound;
 
-	public bool pourTheCoffee = true;
-
-	public GameObject theCoffeePour;
-	
 	public TimerCoffee timercoffee;
 
+    public  bool terribleCoffee = false;
     private bool notEnoughCoffee;
+    public  bool pourTheCoffee = true;
+    private bool levelComplete = false;
+    private bool mainButtonClicked = false;
 
-
-
-	// Use this for initialization
-	void Start () {
-
-
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
-        
-		t += Time.deltaTime / timeToFill;
-		tElapsed += Time.deltaTime;
-		CoffeeEmpty.color = new Color(1f,1f,1f,(Mathf.Lerp (1.0f, 0.5f, t)));
-		CoffeeFull.fillMethod = Image.FillMethod.Vertical;
-
-		if (pourTheCoffee) {
-			CoffeeFull.fillAmount += Mathf.Lerp (0.0f, 1.0f, t * Time.deltaTime);
-			CoffeePour.fillMethod = Image.FillMethod.Vertical;
-		}
-        if(tElapsed >= 1.25f && pourTheCoffee)
+   
+    void Update ()
+    {
+        FillCoffeeCup();
+        UpdateGlobalTime();
+        CheckInput();
+        CheckForLevelCompletion();
+        CheckTimeElapsed();
+    }
+    private void FillCoffeeCup()
+    {
+        if (pourTheCoffee)
         {
-		//	Debug.Log ("pourcoffe");
-		CoffeePour.fillAmount -= Mathf.Lerp (0.0f, 0.54f, t * Time.deltaTime *1.4f );
-			//pourTheCoffee = false;
+            CoffeeFull.fillAmount += Mathf.Lerp(0.0f, 1.0f, currentFillTime * Time.deltaTime);
+            CoffeePour.fillMethod = Image.FillMethod.Vertical;
         }
-        for (int i = 0; i < Input.touchCount; i++)
+    }
+    private void UpdateGlobalTime()
+    {
+        currentFillTime += Time.deltaTime / timeToFill;
+        timeElapsed += Time.deltaTime;
+    }
+    private void CheckInput()
+    {
+        if ((Input.GetKey(KeyCode.Space) || mainButtonClicked) && timeElapsed >= 2.5f && timeElapsed <= 3.5f && !notEnoughCoffee)
         {
-            if (Input.GetKey(KeyCode.Space) || (Input.GetTouch(i).phase == TouchPhase.Began) && tElapsed >= 2.5f && tElapsed <= 3.5f && !notEnoughCoffee)
+            if (levelComplete == false)
             {
-                {
-                    if (levelComplete == false)
-                    {
-                        // Debug.Log ("Right timing");
-                        CoffeeFull.fillAmount = 1.0f;
-                        winSound.Play();
-                        winningText.SetActive(true);
-                        levelComplete = true;
-                        timercoffee.GameWin = true;
-                    }
-                }
-            }
-            if (Input.GetKey(KeyCode.Space) || (Input.GetTouch(i).phase == TouchPhase.Began) && tElapsed < 2.5f)
-            {
-                pourTheCoffee = false;
-                notEnoughCoffee = true;
-                notEnoughCoffeePanel.SetActive(true);
-                coffeePourSound.Stop();
-                //CoffeeFull.fillAmount -= Mathf.Lerp (1.0f, 0.0f, t * Time.deltaTime );
-                //CoffeeFull.fillAmount = 0.2f ;
-
-                theCoffeePour.SetActive(false);
-                //Application.LoadLevel("GameOverScene");
+                CoffeeFull.fillAmount = 1.0f;
+                winSound.Play();
+                winningText.SetActive(true);
+                levelComplete = true;
+                timercoffee.GameWin = true;
             }
         }
-
-        if(levelComplete == true)
+        if ((Input.GetKey(KeyCode.Space) || mainButtonClicked) && timeElapsed < 2.5f)
         {
-          if(tElapsed >= 4.5f)
-          {
-			Application.LoadLevel(4);
-			}
-		}
-		
+            pourTheCoffee = false;
+            notEnoughCoffee = true;
+            notEnoughCoffeePanel.SetActive(true);
+            coffeePourSound.Stop();
+            theCoffeePour.SetActive(false);
+        }
+    }
+    private void CheckForLevelCompletion()
+    {
+        if (levelComplete == true)
+        {
+            if (timeElapsed >= 4.5f)
+            {
+                Application.LoadLevel(4);
+            }
+        }
+        if (timeElapsed >= 5.0f)
+        {
+            Application.LoadLevel("GameOverScene");
+        }
+    }
 
-		if(tElapsed >= 4.0f)
-		{
-		   if(levelComplete == false)
-		   {
-			
-			//Debug.Log ("Back to main menu");
-			losingText.SetActive(true);
-			Poop.SetActive(true);
-				fartGameObject.SetActive(true);
+    private void CheckTimeElapsed()
+    {
+        if (timeElapsed >= 1.25f && pourTheCoffee)
+        {
+            CoffeePour.fillAmount -= Mathf.Lerp(0.0f, 0.54f, currentFillTime * Time.deltaTime * 1.4f);
+        }
+        if (timeElapsed >= 4.0f)
+        {
+            if (levelComplete == false)
+            {
+                losingText.SetActive(true);
+                poop.SetActive(true);
+                fartGameObject.SetActive(true);
+            }
+        }
+    }
 
-
-//				if(tElapsed >= 5.0f)
-//				{
-//					Application.LoadLevel("GameOverScene");
-			}
-		 }
-
-		if(tElapsed >= 5.0f)
-		{
-			Application.LoadLevel("GameOverScene");
-		}
-		
-	}
+    public void ScreenButtonClicked()
+    {
+        mainButtonClicked = true;
+    }
 }
